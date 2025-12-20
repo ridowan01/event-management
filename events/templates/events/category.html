@@ -1,0 +1,89 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Company Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+</head>
+
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md px-6 py-4 flex flex-wrap justify-between items-center">
+        <div class="text-xl font-bold text-blue-600">CompanyName</div>
+        <div class="flex space-x-6 mt-2 md:mt-0">
+            <button class="text-gray-600 hover:text-blue-600 font-medium">Event</button>
+            <button class="tab-btn text-gray-600 hover:text-blue-600 font-medium border-b-2 border-blue-600">Category</button>
+            <button class="text-gray-600 hover:text-blue-600 font-medium">Participants</button>
+        </div>
+        <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow mt-2 md:mt-0">Logout</button>
+    </nav>
+
+    <!-- Content -->
+    <div class="p-6 space-y-10">
+        <!-- Category Section -->
+        <div id="section-category" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <!-- Create Category -->
+                <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                    <h2 class="text-lg font-semibold mb-4 text-blue-600">Create New Category</h2>
+                    <form class="space-y-4" method="POST">
+                        {% csrf_token %}
+                        <input type="text" placeholder="Category Name" name="name"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <textarea placeholder="Description" name="description"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"></textarea>
+                        <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Create</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Category Cards -->
+            <div class="col-span-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for category in categorys %}
+                        <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
+                            <h3 class="font-semibold text-gray-800">{{ category.name }}</h3>
+                            <div class="absolute top-4 right-4 hidden group-hover:flex space-x-3">
+                                <button type="button"
+                                    onclick="document.getElementById('editbox-{{ category.id }}').classList.toggle('hidden')"
+                                    class="text-blue-500 hover:text-blue-700">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <form action="{% url 'category-delete' category.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="editbox-{{ category.id }}" class="hidden bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                            <h2 class="text-lg font-semibold mb-4 text-blue-600">Edit Category</h2>
+                            <form class="space-y-4" method="POST" action="{% url 'category-edit' category.id %}">
+                                {% csrf_token %}
+                                <input type="text" name="name" value="{{ category.name }}"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                <textarea name="description"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">{{ category.description }}</textarea>
+                                <button type="submit" 
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Save</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const box = document.getElementById("editbox-id")
+        openModal.addEventListener('click', (id) => {
+            box.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

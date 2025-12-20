@@ -1,0 +1,139 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Company Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+</head>
+
+<body class="bg-gray-50 font-sans">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold text-blue-600">CompanyName</div>
+        <div class="flex space-x-6">
+            <button id="btn-event"
+                class="tab-btn text-gray-600 hover:text-blue-600 font-medium border-b-2 border-blue-600">Event</button>
+            <button id="btn-category" class="tab-btn text-gray-600 hover:text-blue-600 font-medium">Category</button>
+            <button id="btn-participants"
+                class="tab-btn text-gray-600 hover:text-blue-600 font-medium">Participants</button>
+        </div>
+        <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow">Logout</button>
+    </nav>
+
+    <!-- Content -->
+    <div class="p-8">
+        <!-- Event Section -->
+        <div id="section-event" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Create Event Form -->
+            <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                <h2 class="text-lg font-semibold mb-4 text-blue-600">Create New Event</h2>
+                <form class="space-y-4" method="POST">
+                    {% csrf_token %}
+                    <input type="text" placeholder="Event Name" name="name"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700" name="date">Date</label>
+                            <input type="date" name="date" class="w-full mt-1 p-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700" name="time">Time</label>
+                            <input type="time" name="time" class="w-full mt-1 p-2 border border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                    <input type="text" name="location" placeholder="Location"
+                        class="w-full p-2 border border-gray-300 rounded-md">
+                    <textarea placeholder="Description" name="description"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"></textarea>
+                    <div class="grid grid-cols-4 gap-4 items-center">
+                        <div class="col-span-3">
+                            <select
+                                name="category"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2">
+                                <option value="">-- Choose an option --</option>
+                                {% for category in categorys %}
+                                    <option value="{{category.id}}">{{category.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Create</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Example Event Cards -->
+            {% for event in events %}
+                <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
+                    <img src="{% static 'events/images/event.png' %}" alt="Event Image">
+                    <h3 class="font-semibold text-gray-800"> {{event.name}} </h3>
+                    <p class="text-sm text-gray-500"> {{event.date}} • {{event.time}} </p>
+                    <!-- Hover Icons -->
+                    <div class="absolute top-4 right-4 hidden group-hover:flex space-x-3">
+                        <button onclick="openModal({{event.id}})" class="text-blue-500 hover:text-blue-700">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <form action="{% url 'event-delete' event.id %}" method="POST">
+                            {% csrf_token %}
+                            <button class="text-red-500 hover:text-red-700">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div id="editbox-{{event.id}}" class="hidden bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                    <h2 class="text-lg font-semibold mb-4 text-blue-600">Edit Event</h2>
+                    <form class="space-y-4" method="POST" action="{% url 'event-edit' event.id %}">
+                        {% csrf_token %}
+                        <input type="text" placeholder="{{event.name}}" name="name"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700" name="date">Date</label>
+                                <input type="date" name="date" class="w-full mt-1 p-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700" name="time">Time</label>
+                                <input type="time" name="time" class="w-full mt-1 p-2 border border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                        <input type="text" name="location" placeholder="{{event.location}}"
+                            class="w-full p-2 border border-gray-300 rounded-md">
+                        <textarea placeholder="{{event.description}}" name="description"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"></textarea>
+                        <div class="grid grid-cols-4 gap-4 items-center">
+                            <div class="col-span-3">
+                                <select
+                                    name="category"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2">
+                                    <option value="">-- Choose an option --</option>
+                                    {% for category in categorys %}
+                                        <option value="{{category.id}}">{{category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Edit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) {
+            const box = document.getElementById("editbox-" + id);
+            if (box) {
+            box.classList.remove("hidden");
+            }
+        }
+    </script>
+</body>

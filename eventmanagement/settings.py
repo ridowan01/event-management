@@ -58,9 +58,13 @@ WSGI_APPLICATION = 'eventmanagement.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    'default': { # database changed to postgres
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'eventmanagement',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 
