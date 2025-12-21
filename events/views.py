@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Event, Category
+from .models import Event, Category, Participant
 from .forms import CategoryMForm, EventMForm, ParticipantMForm
 
 # Create your views here.
 def eventCreate(request):
-    events = Event.objects.all()
+    events = Event.objects.prefetch_related("participants")
     categorys = Category.objects.all()
     form = EventMForm()
 
@@ -70,5 +70,38 @@ def categoryDelete(request, id):
     
     return redirect("category-create")
 
-def participants(request):
-    return render(request, "events/participant.html")
+def participantCreate(request):
+    participants = Participant.objects.all()
+    events = Event.objects.all()
+    form = ParticipantMForm()
+
+    if request.method == "POST":
+        form = ParticipantMForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("participant-create")
+
+    context = {
+        "participants": participants,
+        "events": events,
+    }
+    return render(request, "events/participant.html", context=context)
+
+def participantEdit(request, id):
+    participant = get_object_or_404(Participant, id=id)
+    form = ParticipantMForm(instance=participant)
+
+    if request.method == "POST":
+        form = ParticipantMForm(request.POST, instance=participant)
+        if form.is_valid():
+            form.save()
+    
+    return redirect("participant-create")
+
+def participantDelete(request, id):
+    participant = get_object_or_404(Participant, id=id)
+
+    if request.method == "POST":
+        participant.delete()
+    
+    return redirect("participant-create")

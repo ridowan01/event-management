@@ -32,13 +32,27 @@
                 <!-- Create Participant -->
                 <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
                     <h2 class="text-lg font-semibold mb-4 text-blue-600">Add Participant</h2>
-                    <form class="space-y-4">
-                        <input type="text" placeholder="Name"
+                    <form class="space-y-4" method="POST">
+                        {% csrf_token %}
+                        <input type="text" placeholder="Name" name="name"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
-                        <input type="email" placeholder="Email"
+                        <input type="email" placeholder="Email" name="email"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
-                        <button
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Add</button>
+                        <div class="grid grid-cols-4 gap-4 items-center">
+                            <div class="col-span-3">
+                                <select
+                                    name="events"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2">
+                                    <option value="">-- Choose an option --</option>
+                                    {% for event in events %}
+                                        <option value="{{event.id}}">{{event.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Create</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -46,25 +60,56 @@
             <!-- Participant Cards -->
             <div class="col-span-2">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
-                        <h3 class="font-semibold text-gray-800">John Doe</h3>
-                        <p class="text-sm text-gray-500">john@example.com</p>
-                        <div class="absolute top-4 right-4 hidden group-hover:flex space-x-3">
-                            <button class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                    {% for participant in participants %}
+                        <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
+                            <h3 class="font-semibold text-gray-800"> {{participant.name}} </h3>
+                            <p class="text-sm text-gray-500"> {{participant.email}} </p>
+                            <div class="absolute top-4 right-4 hidden group-hover:flex space-x-3">
+                                <button  onclick="openModal({{participant.id}})" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <form action="{% url 'participant-delete' participant.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
-                        <h3 class="font-semibold text-gray-800">Jane Smith</h3>
-                        <p class="text-sm text-gray-500">jane@example.com</p>
-                        <div class="absolute top-4 right-4 hidden group-hover:flex space-x-3">
-                            <button class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                        <div id="editbox-{{participant.id}}" class="hidden bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                            <h2 class="text-lg font-semibold mb-4 text-blue-600">Add Participant</h2>
+                            <form class="space-y-4" method="POST" action="{% url 'participant-edit' participant.id %}">
+                                {% csrf_token %}
+                                <input type="text" placeholder="Name" name="name" value="{{participant.name}}"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                <input type="email" placeholder="Email" name="email" value="{{participant.email}}"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                <div class="grid grid-cols-4 gap-4 items-center">
+                                    <div class="col-span-3">
+                                        <select
+                                            name="events"
+                                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2">
+                                            <option value="">-- Choose an option --</option>
+                                            {% for event in events %}
+                                                <option value="{{event.id}}">{{event.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Edit</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function openModal(id) {
+            const box = document.getElementById("editbox-" + id);
+            if (box) {
+                box.classList.toggle("hidden");
+            }
+        }
+    </script>
 </body>
 </html>

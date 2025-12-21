@@ -71,9 +71,17 @@
             <!-- Example Event Cards -->
             {% for event in events %}
                 <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
-                    <img src="{% static 'events/images/event.png' %}" alt="Event Image">
+                    <img src="{% static "events/images/event.png" %}" alt="Event Image">
                     <h3 class="font-semibold text-gray-800"> {{event.name}} </h3>
                     <p class="text-sm text-gray-500"> {{event.date}} • {{event.time}} </p>
+                    <div class="grid grid-cols-4 text-center gap-4 my-3">
+                        <div class="col-span-3 bg-rose-400 text-white px-4 py-2 rounded-lg shadow">
+                            {{event.category}}
+                        </div>
+                        <div class="bg-sky-400 text-white px-4 py-2 w-14 rounded-lg shadow">
+                            {{event.participants.count}}
+                        </div>
+                    </div>
                     <!-- Hover Icons -->
                     <div class="absolute top-4 right-4 hidden group-hover:flex space-x-3">
                         <button onclick="openModal({{event.id}})" class="text-blue-500 hover:text-blue-700">
@@ -137,3 +145,4 @@
         }
     </script>
 </body>
+</html>

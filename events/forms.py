@@ -13,5 +13,5 @@ class EventMForm(forms.ModelForm):
 
 class ParticipantMForm(forms.ModelForm):
     class Meta:
-        name = Participant
-        fields = ["name", "email", "event"]
+        model = Participant
+        fields = ["name", "email", "events"]

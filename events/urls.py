@@ -14,5 +14,7 @@ urlpatterns = [
     path("category/delete/<int:id>/", views.categoryDelete, name="category-delete"),
 
     # participants section
-    path("participants/", views.participants),
+    path("participant/create/", views.participantCreate, name="participant-create"),
+    path("participant/edit/<int:id>/", views.participantEdit, name="participant-edit"),
+    path("participant/delete/<int:id>/", views.participantDelete, name="participant-delete")
 ]
