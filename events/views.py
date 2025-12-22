@@ -1,8 +1,27 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Event, Category, Participant
 from .forms import CategoryMForm, EventMForm, ParticipantMForm
+from django.utils import timezone
 
 # Create your views here.
+def index(request):
+    events = Event.objects.prefetch_related("participants")
+    participant_count = Participant.objects.all().count()
+    categorys = Category.objects.all()
+
+    curr_date = timezone.now()
+    upcoming_events = events.filter(date__gte=curr_date).count()
+    past_events = events.filter(date__lt=curr_date).count()
+
+    context = {
+        "events": events,
+        "participant_count": participant_count,
+        "categorys": categorys,
+        "upcoming_events": upcoming_events,
+        "past_events": past_events,
+    }
+    return render(request, "events/index.html", context=context)
+
 def eventCreate(request):
     events = Event.objects.prefetch_related("participants")
     categorys = Category.objects.all()

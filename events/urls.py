@@ -3,6 +3,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("", views.index, name="index"),
+
     # event section
     path("event/create/", views.eventCreate, name="event-create"),
     path("event/edit/<int:id>/", views.eventEdit, name="event-edit"),

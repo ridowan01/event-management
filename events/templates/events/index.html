@@ -1,0 +1,106 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-600">MyCompany</h1>
+            <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</a>
+        </div>
+    </nav>
+
+    <!-- Sort by -->
+    <div class="flex rounded-full shadow-md overflow-hidden bg-white p-1 space-x-1 mt-8 mx-8">
+
+        {% for category in categorys %}
+            <a href="{% url 'index' %}?category={{category.name}}">
+            <div 
+                {% if request.GET.type == "{{category.name}}" %}
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                {% else %} 
+                class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full transition duration-150"
+                {% endif %}>
+                {{category.name}}
+            </div>
+            </a>
+        {% endfor %}
+
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div onclick="showEvents('participants')" class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg">
+            <h2 class="text-lg font-semibold text-gray-700">Participants</h2>
+            <p id="participantsCount" class="text-2xl font-bold text-blue-600"> {{participant_count}} </p>
+        </div>
+        <div onclick="showEvents('all')" class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg">
+            <h2 class="text-lg font-semibold text-gray-700">Total Events</h2>
+            <p id="totalEventsCount" class="text-2xl font-bold text-blue-600"> {{events.count}} </p>
+        </div>
+        <div onclick="showEvents('upcoming')" class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg">
+            <h2 class="text-lg font-semibold text-gray-700">Upcoming Events</h2>
+            <p id="upcomingEventsCount" class="text-2xl font-bold text-blue-600"> {{upcoming_events}} </p>
+        </div>
+        <div onclick="showEvents('past')" class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg">
+            <h2 class="text-lg font-semibold text-gray-700">Past Events</h2>
+            <p id="pastEventsCount" class="text-2xl font-bold text-blue-600"> {{past_events}} </p>
+        </div>
+    </div>
+
+    <!-- Events Section -->
+    <div id="all" class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <!-- Event Card -->
+        {% for event in events %}
+            <div class="bg-white shadow-md rounded-lg p-4 hover:shadow-lg">
+                <h2 class="text-lg font-semibold"> {{event.name}} </h2>
+                <p class="text-gray-600"> {{event.date}} | {{event.category}} </p> <a href="#event{{event.id}}" class="text-blue-600 underline">View
+                    Details</a>
+            </div>
+        {% endfor %}
+    </div> 
+    <!-- Modal using :target -->
+    {% for event in events %}
+        <div id="event{{event.id}}" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+            <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
+                <img src="{% static "events/images/event.png" %}" alt="Event Image">
+                <h3 class="font-semibold text-gray-800"> {{event.name}} </h3>
+                <p class="text-sm text-gray-500"> {{event.description}} </p>
+                <p class="text-sm text-gray-500"> {{event.date}} • {{event.time}} </p>
+                <div class="grid grid-cols-4 text-center gap-4 my-3">
+                    <div class="col-span-3 bg-rose-400 text-white px-4 py-2 rounded-lg shadow">
+                        {{event.category}}
+                    </div>
+                    <div class="bg-sky-400 text-white px-4 py-2 w-14 rounded-lg shadow">
+                        {{event.participants.count}}
+                    </div>
+                </div>
+                {% for participant in event.participants.all %}
+                    <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
+                        <h3 class="font-semibold text-gray-800"> {{participant.name}} </h3>
+                        <p class="text-sm text-gray-500"> {{participant.email}} </p>
+                    </div>
+                {% endfor %}
+                <a href="#" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">✕</a>
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- CSS-only modal toggle -->
+    <style>
+    .modal { display: none; }
+    .modal:target { display: flex; }
+    </style>
+</body>
+
+</html>
