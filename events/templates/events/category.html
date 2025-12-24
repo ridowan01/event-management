@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Company Dashboard</title>
+    <title>Category</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
 </head>
@@ -13,13 +13,19 @@
 <body class="bg-gray-100">
     <!-- Navbar -->
     <nav class="bg-white shadow-md px-6 py-4 flex flex-wrap justify-between items-center">
-        <div class="text-xl font-bold text-blue-600">CompanyName</div>
+        <div class="text-xl font-bold text-blue-600">Event.io</div>
         <div class="flex space-x-6 mt-2 md:mt-0">
+            <a href="{% url 'event-create' %}">
             <button class="text-gray-600 hover:text-blue-600 font-medium">Event</button>
+            </a>
             <button class="tab-btn text-gray-600 hover:text-blue-600 font-medium border-b-2 border-blue-600">Category</button>
+            <a href="{% url 'participant-create' %}">
             <button class="text-gray-600 hover:text-blue-600 font-medium">Participants</button>
+            </a>
         </div>
+        <a href="{% url 'index' %}">
         <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow mt-2 md:mt-0">Logout</button>
+        </a>
     </nav>
 
     <!-- Content -->

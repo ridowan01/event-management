@@ -5,20 +5,34 @@ from django.utils import timezone
 
 # Create your views here.
 def index(request):
-    events = Event.objects.prefetch_related("participants")
+    events_all = Event.objects.prefetch_related("participants").select_related("category")
     participant_count = Participant.objects.all().count()
     categorys = Category.objects.all()
 
     curr_date = timezone.now()
-    upcoming_events = events.filter(date__gte=curr_date).count()
-    past_events = events.filter(date__lt=curr_date).count()
+    upcoming_events = events_all.filter(date__gte=curr_date)
+    upcoming_count = upcoming_events.count()
+    past_events = events_all.filter(date__lt=curr_date)
+    past_count = past_events.count()
+
+    category_type = request.GET.get("category")
+    type = request.GET.get("type")
+    
+    if category_type and category_type != "all":
+        events = events_all.filter(category__name=category_type)
+    elif type == "upcoming":
+        events = upcoming_events
+    elif type == "past":
+        events = past_events
+    else:
+        events = events_all
 
     context = {
         "events": events,
         "participant_count": participant_count,
         "categorys": categorys,
-        "upcoming_events": upcoming_events,
-        "past_events": past_events,
+        "upcoming_count": upcoming_count,
+        "past_count": past_count,
     }
     return render(request, "events/index.html", context=context)
 
