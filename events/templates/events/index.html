@@ -20,32 +20,41 @@
         </div>
     </nav>
 
-    <!-- Sort by -->
-    <div class="flex rounded-full shadow-md overflow-hidden bg-white p-1 space-x-1 mt-8 mx-8">
-        <a href="{% url 'index' %}?category=all">
-            <div 
-            {% if request.GET.category == "all" %}
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            {% else %} 
-            class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full transition duration-150"
-            {% endif %}>
-            All
-        </div>
-        </a>
+    <!-- Search by -->
+    <div class="mx-8 mt-8">
+        <form method="GET" action="{% url 'index' %}" class="flex flex-col sm:flex-row shadow-md rounded-full overflow-hidden bg-white border border-gray-200">
+            <!-- Search Field Selector -->
+            <select name="by" class="bg-gray-50 border-r border-gray-200 px-4 py-2 text-sm text-gray-700 focus:outline-none cursor-pointer hover:bg-gray-100 transition">
+                <option value="name" {% if search_by == 'name' %}selected{% endif %}>Name</option>
+                <option value="category" {% if search_by == 'category' %}selected{% endif %}>Category</option>
+                <option value="location" {% if search_by == 'location' %}selected{% endif %}>Location</option>
+            </select>
 
-        {% for category in categorys %}
-            <a href="{% url 'index' %}?category={{category.name}}">
-            <div 
-                {% if request.GET.category == category.name %}
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                {% else %} 
-                class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full transition duration-150"
-                {% endif %}>
-                {{category.name}}
+            <!-- Search Input -->
+            <div class="relative flex-grow flex items-center">
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ query|default:'' }}" 
+                    placeholder="Search events..." 
+                    class="w-full px-6 py-2 text-sm focus:outline-none"
+                >
+                
+                <!-- Clear Button -->
+                {% if query %}
+                <a href="{% url 'index' %}" class="pr-4 text-gray-400 hover:text-red-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </a>
+                {% endif %}
+
+                <!-- Submit Button -->
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 text-sm font-semibold hover:bg-blue-700 transition duration-150">
+                    Find
+                </button>
             </div>
-            </a>
-        {% endfor %}
+        </form>
     </div>
+
 
     <!-- Stats Grid -->
     <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">

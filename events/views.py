@@ -5,7 +5,7 @@ from .models import Event, Category, Participant
 from .forms import CategoryMForm, EventMForm, ParticipantMForm
 
 def index(request):
-    curr_date = timezone.now()
+    curr_date = timezone.now().date()
     
     counts = Event.objects.aggregate(
         total=Count('id'),
@@ -15,16 +15,29 @@ def index(request):
 
     events = Event.objects.select_related("category").prefetch_related("participants")
 
+    query = request.GET.get("q")
+    search_by = request.GET.get("by")
+    
+    if query:
+        if search_by == "category":
+            events = events.filter(category__name__icontains=query)
+        elif search_by == "location":
+            events = events.filter(location__icontains=query)
+        else:
+            events = events.filter(name__icontains=query)
+
     category_type = request.GET.get("category")
-    filter_type = request.GET.get("type") # Avoid using 'type' as it's a Python keyword
+    filter_type = request.GET.get("type") 
 
     if category_type and category_type != "all":
         events = events.filter(category__name=category_type)
-    
+        
     if filter_type == "upcoming":
         events = events.filter(date__gte=curr_date)
     elif filter_type == "past":
         events = events.filter(date__lt=curr_date)
+    elif not filter_type and not query:
+        events = events.filter(date=curr_date)
 
     context = {
         "events": events,
@@ -32,9 +45,10 @@ def index(request):
         "categorys": Category.objects.all(),
         "upcoming_count": counts['upcoming'],
         "past_count": counts['past'],
+        "query": query,
+        "search_by": search_by,
     }
     return render(request, "events/index.html", context)
-
 
 def eventCreate(request):
     events = Event.objects.prefetch_related("participants")
