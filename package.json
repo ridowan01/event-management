@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "tailwindcss": "^4.1.18"
+  },
+
+  "name": "eventmanagement",
+
+  "scripts": {
+    "tailwind:build": "npx @tailwindcss/cli -i ./events/static/events/css/input.css -o ./events/static/events/css/output.css --build",
+    "tailwind:watch": "npx @tailwindcss/cli -i ./events/static/events/css/input.css -o ./events/static/events/css/output.css --watch"
+  }
+}
