@@ -1,40 +1,40 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from django.db.models import Count, Q
 from .models import Event, Category, Participant
 from .forms import CategoryMForm, EventMForm, ParticipantMForm
-from django.utils import timezone
 
-# Create your views here.
 def index(request):
-    events_all = Event.objects.prefetch_related("participants").select_related("category")
-    participant_count = Participant.objects.all().count()
-    categorys = Category.objects.all()
-
     curr_date = timezone.now()
-    upcoming_events = events_all.filter(date__gte=curr_date)
-    upcoming_count = upcoming_events.count()
-    past_events = events_all.filter(date__lt=curr_date)
-    past_count = past_events.count()
+    
+    counts = Event.objects.aggregate(
+        total=Count('id'),
+        upcoming=Count('id', filter=Q(date__gte=curr_date)),
+        past=Count('id', filter=Q(date__lt=curr_date))
+    )
+
+    events = Event.objects.select_related("category").prefetch_related("participants")
 
     category_type = request.GET.get("category")
-    type = request.GET.get("type")
-    
+    filter_type = request.GET.get("type") # Avoid using 'type' as it's a Python keyword
+
     if category_type and category_type != "all":
-        events = events_all.filter(category__name=category_type)
-    elif type == "upcoming":
-        events = upcoming_events
-    elif type == "past":
-        events = past_events
-    else:
-        events = events_all
+        events = events.filter(category__name=category_type)
+    
+    if filter_type == "upcoming":
+        events = events.filter(date__gte=curr_date)
+    elif filter_type == "past":
+        events = events.filter(date__lt=curr_date)
 
     context = {
         "events": events,
-        "participant_count": participant_count,
-        "categorys": categorys,
-        "upcoming_count": upcoming_count,
-        "past_count": past_count,
+        "participant_count": Participant.objects.count(),
+        "categorys": Category.objects.all(),
+        "upcoming_count": counts['upcoming'],
+        "past_count": counts['past'],
     }
-    return render(request, "events/index.html", context=context)
+    return render(request, "events/index.html", context)
+
 
 def eventCreate(request):
     events = Event.objects.prefetch_related("participants")
