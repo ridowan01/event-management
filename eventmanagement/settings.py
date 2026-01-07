@@ -1,14 +1,15 @@
 from pathlib import Path
 import dj_database_url 
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-n7kvx^gg5^q(v05a!isb0!%9)9#_dyfp-uminn7zfs^79fo-pt'
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ["https://*.onrender.com", "http://127.0.0.1:8000"]
@@ -61,7 +62,7 @@ WSGI_APPLICATION = 'eventmanagement.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://event_management_db_l3oy_user:JrtpFTUHBAAm78c0ByoKVgU80YW3AbsS@dpg-d55q46uuk2gs73c3je0g-a.oregon-postgres.render.com/event_management_db_l3oy',
+        default=config("DATABASE_URL"),
         conn_max_age=600
     )
 }
