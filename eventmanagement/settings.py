@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "events", # event app installed
+    "users", # user app installed
 ]
 
 MIDDLEWARE = [
