@@ -38,9 +38,16 @@
                 </button>
             </a>
         </div>
-        <a href="{% url 'logout' %}">
-            <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow">Logout</button>
-        </a>
+        <div class="flex items-center space-x-4 gap-4"> 
+            {% if user.is_authenticated %} 
+            <div class="bg-sky-400 text-white px-4 py-2 w-10 h-10 rounded-full shadow text-white font-bold"> 
+                {{ user.username|first }} 
+            </div> 
+            {% endif %} 
+            <a href="{% url 'logout' %}"> 
+                <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow">Logout</button> 
+            </a> 
+        </div>
     </nav>
 
     <!-- Navbar End -->
