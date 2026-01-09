@@ -16,7 +16,7 @@
     <nav class="bg-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <h1 class="text-xl font-bold text-blue-600">Event.io</h1>
-            <a href="{% url 'event-create' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</a>
+            <a href="{% url 'login' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</a>
         </div>
     </nav>
 
@@ -111,7 +111,7 @@
                 </div>
                 {% for participant in event.participants.all %}
                     <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
-                        <h3 class="font-semibold text-gray-800"> {{participant.name}} </h3>
+                        <h3 class="font-semibold text-gray-800"> {{participant.first_name}} </h3>
                         <p class="text-sm text-gray-500"> {{participant.email}} </p>
                     </div>
                 {% endfor %}

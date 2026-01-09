@@ -11,6 +11,14 @@
 </head>
 
 <body class="bg-gray-50 font-sans">
+    {% if messages %}
+        <ul class="messages" style="color: red; list-style: none; padding: 10px;">
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif%}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
         <div class="text-xl font-bold text-blue-600">Event.io</div>
         <div class="flex space-x-6">
@@ -27,14 +35,6 @@
                 <button id="btn-category"
                     class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'category' %}border-b-2 border-blue-600{% endif %}">
                     Category
-                </button>
-            </a>
-
-            <!-- Participants -->
-            <a href="{% url 'participant-create' %}">
-                <button id="btn-participants"
-                    class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'participant' %}border-b-2 border-blue-600{% endif %}">
-                    Participants
                 </button>
             </a>
         </div>

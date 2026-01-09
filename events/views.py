@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.db.models import Count, Q
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Event, Category
 from .forms import CategoryMForm, EventMForm
 
@@ -51,7 +53,12 @@ def index(request):
     }
     return render(request, "events/index.html", context)
 
+@login_required
 def eventCreate(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+        messages.error(request, "You do not have permission to access this page")
+        return redirect("index")
+
     events = Event.objects.prefetch_related("participants")
     categorys = Category.objects.all()
     form = EventMForm()
@@ -70,7 +77,12 @@ def eventCreate(request):
     }
     return render(request, "events/event.html", context=context)
 
+@login_required
 def eventEdit(request, id):
+    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+        messages.error(request, "You do not have permission to access this page")
+        return redirect("index")
+
     event = get_object_or_404(Event, id=id)
     form = EventMForm(instance=event)
 
@@ -81,7 +93,12 @@ def eventEdit(request, id):
     
     return redirect("event-create")
 
+@login_required
 def eventDelete(request, id):
+    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+        messages.error(request, "You do not have permission to access this page")
+        return redirect("index")
+
     event = get_object_or_404(Event, id=id)
 
     if request.method == "POST":
@@ -89,7 +106,12 @@ def eventDelete(request, id):
     
     return redirect("event-create")
 
+@login_required
 def categoryCreate(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+        messages.error(request, "You do not have permission to access this page")
+        return redirect("index")
+
     categorys = Category.objects.all()
     form = CategoryMForm()
 
@@ -106,7 +128,12 @@ def categoryCreate(request):
     }
     return render(request, "events/category.html", context)
 
+@login_required
 def categoryEdit(request, id):
+    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+        messages.error(request, "You do not have permission to access this page")
+        return redirect("index")
+
     category = get_object_or_404(Category, id=id)
     form = CategoryMForm(instance=category)
 
@@ -117,7 +144,12 @@ def categoryEdit(request, id):
     
     return redirect("category-create")
 
+@login_required
 def categoryDelete(request, id):
+    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+        messages.error(request, "You do not have permission to access this page")
+        return redirect("index")
+        
     category = get_object_or_404(Category, id=id)
 
     if request.method == "POST":
