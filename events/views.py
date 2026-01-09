@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.db.models import Count, Q
-from .models import Event, Category, Participant
-from .forms import CategoryMForm, EventMForm, ParticipantMForm
+from django.contrib.auth.models import User
+from .models import Event, Category
+from .forms import CategoryMForm, EventMForm
 
 def index(request):
     curr_date = timezone.now().date()
@@ -41,7 +42,7 @@ def index(request):
 
     context = {
         "events": events,
-        "participant_count": Participant.objects.count(),
+        "participant_count": User.objects.filter(attanded_events__isnull=False).count(),
         "categorys": Category.objects.all(),
         "upcoming_count": counts['upcoming'],
         "past_count": counts['past'],
@@ -123,41 +124,3 @@ def categoryDelete(request, id):
         category.delete()
     
     return redirect("category-create")
-
-def participantCreate(request):
-    participants = Participant.objects.all()
-    events = Event.objects.all()
-    form = ParticipantMForm()
-
-    if request.method == "POST":
-        form = ParticipantMForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("participant-create")
-
-    context = {
-        "participants": participants,
-        "events": events,
-        "active_tab": "participant",
-        "form": form,
-    }
-    return render(request, "events/participant.html", context=context)
-
-def participantEdit(request, id):
-    participant = get_object_or_404(Participant, id=id)
-    form = ParticipantMForm(instance=participant)
-
-    if request.method == "POST":
-        form = ParticipantMForm(request.POST, instance=participant)
-        if form.is_valid():
-            form.save()
-    
-    return redirect("participant-create")
-
-def participantDelete(request, id):
-    participant = get_object_or_404(Participant, id=id)
-
-    if request.method == "POST":
-        participant.delete()
-    
-    return redirect("participant-create")

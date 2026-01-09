@@ -1,5 +1,5 @@
 from django import forms
-from .models import Category, Event, Participant
+from .models import Category, Event
 
 class CategoryMForm(forms.ModelForm):
     class Meta:
@@ -10,8 +10,3 @@ class EventMForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = ["name", "description", "date", "time", "location", "category"]
-
-class ParticipantMForm(forms.ModelForm):
-    class Meta:
-        model = Participant
-        fields = ["name", "email", "events"]
