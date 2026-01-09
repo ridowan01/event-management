@@ -1,35 +1,10 @@
+{% extends 'events/base.html' %}
+
+{% block title %} Participant {% endblock %}
+
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <title>Participant</title>
-    <link rel="stylesheet" href="{% static '/events/css/output.css' %}">
-    <link href="{% static '/events/css/all.min.css' %}" rel="stylesheet">
-</head>
-
-<body class="bg-gray-100">
-    <!-- Navbar -->
-    <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-        <div class="text-xl font-bold text-blue-600">Event.io</div>
-        <div class="flex space-x-6">
-            <a href="{% url 'event-create' %}">
-            <button id="btn-event"
-                class="tab-btn text-gray-600 hover:text-blue-600 font-medium">Event</button>
-            </a>
-            <a href="{% url 'category-create' %}">
-            <button id="btn-category" class="tab-btn text-gray-600 hover:text-blue-600 font-medium">Category</button>
-            </a>
-            <button id="btn-participants"
-                class="tab-btn text-gray-600 hover:text-blue-600 font-medium border-b-2 border-blue-600">Participants</button>
-        </div>
-        <a href="{% url 'index' %}">
-        <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow">Logout</button>
-        </a>
-    </nav>
-
+{% block content %}
     <!-- Content -->
     <div class="p-6 space-y-10">
         <!-- Participants Section -->
@@ -108,7 +83,7 @@
             </div>
         </div>
     </div>
-
+{% endblock content %}
     <script>
         function openModal(id) {
             const box = document.getElementById("editbox-" + id);

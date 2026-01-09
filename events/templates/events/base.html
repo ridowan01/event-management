@@ -1,0 +1,62 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title> {% block title %} Event {% endblock title %} </title> <!-- Dynamic Title -->
+    <link rel="stylesheet" href="{% static '/events/css/output.css' %}">
+    <link href="{% static '/events/css/all.min.css' %}" rel="stylesheet">
+</head>
+
+<body class="bg-gray-50 font-sans">
+    <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold text-blue-600">Event.io</div>
+        <div class="flex space-x-6">
+            <!-- Event -->
+            <a href="{% url 'event-create' %}">
+                <button id="btn-event"
+                    class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'event' %}border-b-2 border-blue-600{% endif %}">
+                    Event
+                </button>
+            </a>
+
+            <!-- Category -->
+            <a href="{% url 'category-create' %}">
+                <button id="btn-category"
+                    class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'category' %}border-b-2 border-blue-600{% endif %}">
+                    Category
+                </button>
+            </a>
+
+            <!-- Participants -->
+            <a href="{% url 'participant-create' %}">
+                <button id="btn-participants"
+                    class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'participant' %}border-b-2 border-blue-600{% endif %}">
+                    Participants
+                </button>
+            </a>
+        </div>
+        <a href="{% url 'logout' %}">
+            <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow">Logout</button>
+        </a>
+    </nav>
+
+    <!-- Navbar End -->
+
+    <!-- Content -->
+    {% block content %}{% endblock content %}
+    <!-- Content End -->
+
+    <script>
+        function openModal(id) {
+            const box = document.getElementById("editbox-" + id);
+            if (box) {
+                box.classList.toggle("hidden");
+            }
+        }
+    </script>
+
+</body>
+</html>

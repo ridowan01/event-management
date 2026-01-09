@@ -64,6 +64,8 @@ def eventCreate(request):
     context = {
         "events": events,
         "categorys": categorys,
+        "active_tab": "event",
+        "form": form,
     }
     return render(request, "events/event.html", context=context)
 
@@ -96,7 +98,12 @@ def categoryCreate(request):
             form.save()
             return redirect("category-create")
 
-    return render(request, "events/category.html", {"categorys": categorys})
+    context = {
+        "categorys": categorys,
+        "active_tab": "category",
+        "form": form,
+    }
+    return render(request, "events/category.html", context)
 
 def categoryEdit(request, id):
     category = get_object_or_404(Category, id=id)
@@ -131,6 +138,8 @@ def participantCreate(request):
     context = {
         "participants": participants,
         "events": events,
+        "active_tab": "participant",
+        "form": form,
     }
     return render(request, "events/participant.html", context=context)
 
