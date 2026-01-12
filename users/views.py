@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import RegisterForm
+from django.contrib import messages
+from .forms import RegisterForm, LoginForm
 
 # Create your views here.
 def logup(request):
@@ -22,12 +23,18 @@ def logup(request):
 
                 participant_group = Group.objects.get(name="Participant")
                 user.groups.add(participant_group)
-
+                
+                messages.success(request, "Account created successfully! Please check your email to activate your account.")
                 return redirect("login")
             else:
-                print("Email exits or Passwords do not match")
+                if email_exists:
+                    messages.error(request, "Email already exists.")
+                if form.cleaned_data["password"] != form.cleaned_data["confirm_password"]:
+                    messages.error(request, "Passwords do not match.")
         else:
-            print(form.errors)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
 
     return render(request, "users/logup.html", {"form": form})
 
@@ -41,7 +48,10 @@ def login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 auth_login(request, user)
-                return redirect("event-create")
+                if user.is_superuser or user.groups.filter(name="Organizer").exists():
+                    return redirect("event-create")
+                elif user.groups.filter(name="Participant").exists():
+                    return redirect("index")
             else:
                 print("User not found")
         else:
@@ -51,4 +61,4 @@ def login(request):
 
 def logout(request):
     auth_logout(request)
-    return redirect("login")
+    return redirect("home")

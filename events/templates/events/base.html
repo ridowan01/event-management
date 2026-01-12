@@ -21,32 +21,62 @@
 
     <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
         <div class="text-xl font-bold text-blue-600">Event.io</div>
-        <div class="flex space-x-6">
-            <!-- Event -->
-            <a href="{% url 'event-create' %}">
-                <button id="btn-event"
-                    class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'event' %}border-b-2 border-blue-600{% endif %}">
-                    Event
-                </button>
-            </a>
+        {% if request.user.is_superuser %}
+            <!-- show buttons -->
+            <div class="flex space-x-6">
+                <!-- Event -->
+                <a href="{% url 'event-create' %}">
+                    <button id="btn-event"
+                        class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'event' %}border-b-2 border-blue-600{% endif %}">
+                        Event
+                    </button>
+                </a>
 
-            <!-- Category -->
-            <a href="{% url 'category-create' %}">
-                <button id="btn-category"
-                    class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'category' %}border-b-2 border-blue-600{% endif %}">
-                    Category
-                </button>
-            </a>
-        </div>
+                <!-- Category -->
+                <a href="{% url 'category-create' %}">
+                    <button id="btn-category"
+                        class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'category' %}border-b-2 border-blue-600{% endif %}">
+                        Category
+                    </button>
+                </a>
+            </div>
+        {% else %}
+            {% for g in request.user.groups.all %}
+                {% if g.name == "Organizer" %}
+                    <!-- show buttons -->
+                    <div class="flex space-x-6">
+                    <!-- Event -->
+                    <a href="{% url 'event-create' %}">
+                        <button id="btn-event"
+                            class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'event' %}border-b-2 border-blue-600{% endif %}">
+                            Event
+                        </button>
+                    </a>
+
+                    <!-- Category -->
+                    <a href="{% url 'category-create' %}">
+                        <button id="btn-category"
+                            class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'category' %}border-b-2 border-blue-600{% endif %}">
+                            Category
+                        </button>
+                    </a>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
         <div class="flex items-center space-x-4 gap-4"> 
             {% if user.is_authenticated %} 
             <div class="bg-sky-400 text-white px-4 py-2 w-10 h-10 rounded-full shadow text-white font-bold"> 
                 {{ user.username|first }} 
-            </div> 
-            {% endif %} 
+            </div>  
             <a href="{% url 'logout' %}"> 
                 <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow">Logout</button> 
             </a> 
+            {% else %}
+            <a href="{% url 'login' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</a>
+            <a href="{% url 'logup' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sign Up</a>
+            {% endif %}
         </div>
     </nav>
 

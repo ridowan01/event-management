@@ -1,24 +1,10 @@
+{% extends 'events/base.html' %}
+
+{% block title %} Dashboard {% endblock %}
+
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DashBoard</title>
-    <link rel="stylesheet" href="{% static '/events/css/output.css' %}">
-</head>
-
-<body class="bg-gray-100">
-
-    <!-- Navbar -->
-    <nav class="bg-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-blue-600">Event.io</h1>
-            <a href="{% url 'login' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</a>
-        </div>
-    </nav>
+{% block content %}
 
     <!-- Search by -->
     <div class="mx-8 mt-8">
@@ -125,6 +111,4 @@
     .modal { display: none; }
     .modal:target { display: flex; }
     </style>
-</body>
-
-</html>
+{% endblock content %}
