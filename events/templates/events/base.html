@@ -11,13 +11,25 @@
 </head>
 
 <body class="bg-gray-50 font-sans">
-    {% if messages %}
-        <ul class="messages" style="color: red; list-style: none; padding: 10px;">
-            {% for message in messages %}
-                <li {% if message.tags %} class="{{ message.tags }}"{% endif%}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    <div class="max-w-lg mx-auto mt-6">
+        {% if messages %}
+            <div class="bg-white border border-gray-200 rounded-lg shadow-md p-4">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">Notifications</h2>
+                <ul class="space-y-2">
+                    {% for message in messages %}
+                        <li 
+                            class="px-4 py-2 rounded-md 
+                                {% if message.tags == 'error' %} bg-red-50 text-red-700 border border-red-200 
+                                {% elif message.tags == 'success' %} bg-green-50 text-green-700 border border-green-200 
+                                {% elif message.tags == 'warning' %} bg-yellow-50 text-yellow-700 border border-yellow-200 
+                                {% else %} bg-blue-50 text-blue-700 border border-blue-200 {% endif %}">
+                            {{ message }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
 
     <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
         <div class="text-xl font-bold text-blue-600">Event.io</div>

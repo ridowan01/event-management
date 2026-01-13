@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from django.contrib.auth.tokens import default_token_generator
 from .forms import RegisterForm, LoginForm
 
 # Create your views here.
@@ -18,6 +19,7 @@ def logup(request):
             # email not found and chekcing password correctness
             if not email_exists and form.cleaned_data["password"] == form.cleaned_data["confirm_password"]:
                 user = form.save(commit=False)
+                user.is_active = False # not activated
                 user.set_password(form.cleaned_data["password"]) # password saved as hash
                 user.save()
 
@@ -62,3 +64,16 @@ def login(request):
 def logout(request):
     auth_logout(request)
     return redirect("home")
+
+def activate_user(request, user_id, token):
+    try:
+        user = User.objects.get(id=user_id)
+        if default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            messages.success(request, "Account activated successfully!")
+            return redirect("login")
+        else:
+            return HttpResponse("Invalid activation link.")
+    except User.DoesNotExist:
+        return HttpResponse("User not found.")

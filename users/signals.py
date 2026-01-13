@@ -10,11 +10,11 @@ def create_user_profile(sender, instance, created, **kwargs):
     print(sender, instance, created, kwargs)
     if created:
         token = default_token_generator.make_token(instance)
-        activation_url = f"{settings.FRONTEND_URL}/users/activate/{instance.id}/{token}"
+        activation_url = f"{settings.FRONTEND_URL}/users/activate/{instance.id}/{token}/"
 
         subject = "Activate Your Account"
         message = f"Hi {instance.username},\n\nPlease click the following link to activate your account: {activation_url}. \n\nThank you!"
-        from_email = settings.DEFAULT_FROM_EMAIL
+        from_email = settings.EMAIL_HOST_USER
         recipient_list = [instance.email]
 
         try:
