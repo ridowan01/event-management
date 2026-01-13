@@ -14,7 +14,7 @@ def home(request):
 def index(request):
     if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()
     or request.user.groups.filter(name="Participant").exists()):
-        messages.error(request, "You do not have permission to access this page")
+        messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
     
     curr_date = timezone.now().date()
@@ -65,7 +65,7 @@ def index(request):
 @login_required
 def eventCreate(request):
     if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
-        messages.error(request, "You do not have permission to access this page")
+        messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
     events = Event.objects.prefetch_related("participants")
@@ -89,7 +89,7 @@ def eventCreate(request):
 @login_required
 def eventEdit(request, id):
     if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
-        messages.error(request, "You do not have permission to access this page")
+        messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
     event = get_object_or_404(Event, id=id)
@@ -105,7 +105,7 @@ def eventEdit(request, id):
 @login_required
 def eventDelete(request, id):
     if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
-        messages.error(request, "You do not have permission to access this page")
+        messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
     event = get_object_or_404(Event, id=id)
@@ -118,7 +118,7 @@ def eventDelete(request, id):
 @login_required
 def categoryCreate(request):
     if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
-        messages.error(request, "You do not have permission to access this page")
+        messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
     categorys = Category.objects.all()
@@ -140,7 +140,7 @@ def categoryCreate(request):
 @login_required
 def categoryEdit(request, id):
     if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
-        messages.error(request, "You do not have permission to access this page")
+        messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
     category = get_object_or_404(Category, id=id)
@@ -156,7 +156,7 @@ def categoryEdit(request, id):
 @login_required
 def categoryDelete(request, id):
     if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
-        messages.error(request, "You do not have permission to access this page")
+        messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
         
     category = get_object_or_404(Category, id=id)

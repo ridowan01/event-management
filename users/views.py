@@ -55,9 +55,9 @@ def login(request):
                 elif user.groups.filter(name="Participant").exists():
                     return redirect("index")
             else:
-                print("User not found")
+                messages.error(request, "Invalid username or password.")
         else:
-            print(form.errors)
+            messages.error(request, "Invalid username or password.")
 
     return render(request, "users/login.html", {"form": form})
 
