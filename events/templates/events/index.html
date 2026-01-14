@@ -44,14 +44,10 @@
 
     <!-- Stats Grid -->
     <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        <div class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg">
-            <h2 class="text-lg font-semibold text-gray-700">Participants</h2>
-            <p id="participantsCount" class="text-2xl font-bold text-blue-600"> {{participant_count}} </p>
-        </div>
         <a href="{% url 'index' %}?type=all">
         <div class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg">
             <h2 class="text-lg font-semibold text-gray-700">Total Events</h2>
-            <p id="totalEventsCount" class="text-2xl font-bold text-blue-600"> {{events.count}} </p>
+            <p id="totalEventsCount" class="text-2xl font-bold text-blue-600"> {{total_count}} </p>
         </div>
         </a>
         <a href="{% url 'index' %}?type=upcoming">
@@ -64,6 +60,12 @@
         <div class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg">
             <h2 class="text-lg font-semibold text-gray-700">Past Events</h2>
             <p id="pastEventsCount" class="text-2xl font-bold text-blue-600"> {{past_count}} </p>
+        </div>
+        </a>
+        <a href="{% url 'index' %}?type=participated">
+        <div class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg">
+            <h2 class="text-lg font-semibold text-gray-700">Participanted Events</h2>
+            <p id="participantsCount" class="text-2xl font-bold text-blue-600"> {{ user.attanded_events.count }} </p>
         </div>
         </a>
     </div>
@@ -91,17 +93,33 @@
                     <div class="col-span-3 bg-rose-400 text-white px-4 py-2 rounded-lg shadow">
                         {{event.category}}
                     </div>
-                    <div class="bg-sky-400 text-white px-4 py-2 w-14 rounded-lg shadow">
+                    <div class="bg-sky-400 text-white px-4 py-2 w-17 rounded-lg shadow">
                         {{event.participants.count}}
                     </div>
                 </div>
-                {% for participant in event.participants.all %}
-                    <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
-                        <h3 class="font-semibold text-gray-800"> {{participant.first_name}} </h3>
-                        <p class="text-sm text-gray-500"> {{participant.email}} </p>
-                    </div>
-                {% endfor %}
-                <a href="#" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">✕</a>
+
+                {% if user.is_authenticated %}
+                    {% if user in event.participants.all %}
+                        <!-- Cancel button --> 
+                        <form action="{% url 'cancel-participate-event' event.id %}" method="POST" class="mt-4"> 
+                            {% csrf_token %} 
+                            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                                Cancel Participation
+                            </button> 
+                        </form>
+                    {% else %}
+                        <!-- Participate button --> 
+                        <form action="{% url 'participate-event' event.id %}" method="POST" class="mt-4"> 
+                            {% csrf_token %} 
+                            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                                Participate 
+                            </button> 
+                        </form>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Modal close button -->
+                <a href="{% url 'index' %}" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">✕</a>
             </div>
         </div>
     {% endfor %}

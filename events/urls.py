@@ -3,8 +3,13 @@ from . import views
 
 urlpatterns = [
     path("", views.home, name="home"),
-    path("index/", views.index, name="index"),
 
+    # user section
+    path("index/", views.index, name="index"),
+    path("participate/<int:id>/", views.partipateEvent, name="participate-event"),
+    path("participate/cancel/<int:id>/", views.cancelPartipateEvent, name="cancel-participate-event"),
+
+    # organizer and admin section
     # event section
     path("event/create/", views.eventCreate, name="event-create"),
     path("event/edit/<int:id>/", views.eventEdit, name="event-edit"),

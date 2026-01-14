@@ -4,6 +4,8 @@ from django.db.models import Count, Q
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
 from .models import Event, Category
 from .forms import CategoryMForm, EventMForm
 
@@ -48,19 +50,72 @@ def index(request):
         events = events.filter(date__gte=curr_date)
     elif filter_type == "past":
         events = events.filter(date__lt=curr_date)
+    elif filter_type == "participated":
+        events = events.filter(participants=request.user)
     elif not filter_type and not query:
         events = events.filter(date=curr_date)
 
     context = {
         "events": events,
-        "participant_count": User.objects.filter(attanded_events__isnull=False).count(),
         "categorys": Category.objects.all(),
+        "total_count": counts['total'],
         "upcoming_count": counts['upcoming'],
         "past_count": counts['past'],
         "query": query,
         "search_by": search_by,
     }
     return render(request, "events/index.html", context)
+
+@login_required
+def partipateEvent(request, id):
+    event = get_object_or_404(Event, id=id)
+    if request.method == "POST":
+        if request.user in event.participants.all():
+            messages.warning(request, "You have already participated in this event")
+        else:
+            event.participants.add(request.user)
+            messages.success(request, "You have successfully participated in this event")
+
+            # sending mail
+            subject = f"You have successfully participated in {event.name}"
+            message = f"Hi {request.user.username},\n\nYou have successfully participated in {event.name} on {event.date} at {event.time} in {event.location}.\nWe look forward to see you there.\n\nBest Regards,\nThe Event.io Team"
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [request.user.email]
+
+            # if has email
+            if request.user.email:
+                try:
+                    send_mail(subject, message, from_email, recipient_list)
+                    messages.success(request, "Participation successfull")
+                except:
+                    messages.warning(request, "Email sending failed")
+            else:
+                messages.warning(request, "Your account don't have email")
+
+    return redirect("index")
+
+def cancelPartipateEvent(request, id):
+    event = get_object_or_404(Event, id=id)
+    if request.method == "POST":
+        if request.user in event.participants.all():
+            event.participants.remove(request.user)
+            messages.success(request, "You have successfully canceled your participation in this event")
+
+            # sending email
+            subject = f"Cancelation of participation in {event.name}"
+            message = f"Hi {request.user.username},\n\nYou have successfully canceled your participation in {event.name} on {event.date} at {event.time} in {event.location}.\n\nBest Regards,\nThe Event.io Team"
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [request.user.email]
+
+            try:
+                send_mail(subject, message, from_email, recipient_list)
+                messages.warning(request, "Event Participation Cancelled")
+            except:
+                messages.warning(request, "Email sending failed")
+        else:
+            messages.warning(request, "You have not participated in this event")
+    return redirect("index")
+
 
 @login_required
 def eventCreate(request):
