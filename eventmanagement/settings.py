@@ -114,3 +114,7 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'ridowan.ahmed763@gmail.com'
 EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
+
+# media upload
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

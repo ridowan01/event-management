@@ -85,7 +85,7 @@
     {% for event in events %}
         <div id="event{{event.id}}" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
             <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
-                <img src="{% static "events/images/event.png" %}" alt="Event Image">
+                <img src="{{event.image.url}}" alt="Event Image">
                 <h3 class="font-semibold text-gray-800"> {{event.name}} </h3>
                 <p class="text-sm text-gray-500"> {{event.description}} </p>
                 <p class="text-sm text-gray-500"> {{event.date}} • {{event.time}} </p>

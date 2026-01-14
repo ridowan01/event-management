@@ -15,6 +15,7 @@ class Event(models.Model):
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(max_length=250)
+    image = models.ImageField(upload_to="event_images", blank=True, null=True, default="event_images/event.png")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="events")
     participants = models.ManyToManyField(User, related_name="attanded_events", blank=True)
 

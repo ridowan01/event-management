@@ -9,4 +9,4 @@ class CategoryMForm(forms.ModelForm):
 class EventMForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ["name", "description", "date", "time", "location", "category"]
+        fields = ["name", "description", "date", "time", "location", "category", "image"]

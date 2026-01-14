@@ -12,7 +12,7 @@
             <!-- Create Event Form -->
             <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
                 <h2 class="text-lg font-semibold mb-4 text-blue-600">Create New Event</h2>
-                <form class="space-y-4" method="POST">
+                <form class="space-y-4" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" placeholder="Event Name" name="name"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
@@ -30,6 +30,10 @@
                         class="w-full p-2 border border-gray-300 rounded-md">
                     <textarea placeholder="Description" name="description"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"></textarea>
+                    
+                    <input type="file" name="image" id="id_image" accept="image/*"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    
                     <div class="grid grid-cols-4 gap-4 items-center">
                         <div class="col-span-3">
                             <select
@@ -51,7 +55,7 @@
             <!-- Example Event Cards -->
             {% for event in events %}
                 <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
-                    <img src="{% static "events/images/event.png" %}" alt="Event Image">
+                    <img src="{{event.image.url}}" alt="Event Image">
                     <h3 class="font-semibold text-gray-800"> {{event.name}} </h3>
                     <p class="text-sm text-gray-500"> {{event.date}} • {{event.time}} </p>
                     <div class="grid grid-cols-4 text-center gap-4 my-3">
@@ -77,7 +81,7 @@
                 </div>
                 <div id="editbox-{{event.id}}" class="hidden bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
                     <h2 class="text-lg font-semibold mb-4 text-blue-600">Edit Event</h2>
-                    <form class="space-y-4" method="POST" action="{% url 'event-edit' event.id %}">
+                    <form class="space-y-4" method="POST" enctype="multipart/form-data" action="{% url 'event-edit' event.id %}">
                         {% csrf_token %}
                         <input type="text" placeholder="{{event.name}}" name="name"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
@@ -95,6 +99,17 @@
                             class="w-full p-2 border border-gray-300 rounded-md">
                         <textarea placeholder="{{event.description}}" name="description"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"></textarea>
+                        
+                        <!-- Add this section for the image -->
+                        <div class="mt-4">
+                            <label class="block text-gray-700">Current Image</label>
+                                <img src="{{ event.image.url }}" alt="Current image for {{ event.name }}" class="w-32 h-32 object-cover rounded-lg my-2">
+                            <label for="id_image_edit" class="block text-gray-700 mt-2">Change Image</label>
+                            <input type="file" name="image" id="id_image_edit" accept="image/*"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <!-- End of section to add -->
+                        
                         <div class="grid grid-cols-4 gap-4 items-center">
                             <div class="col-span-3">
                                 <select

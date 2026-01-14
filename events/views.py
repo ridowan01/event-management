@@ -128,7 +128,7 @@ def eventCreate(request):
     form = EventMForm()
 
     if request.method == "POST":
-        form = EventMForm(request.POST)
+        form = EventMForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect("event-create")
@@ -151,7 +151,7 @@ def eventEdit(request, id):
     form = EventMForm(instance=event)
 
     if request.method == "POST":
-        form = EventMForm(request.POST, instance=event)
+        form = EventMForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
             form.save()
     
