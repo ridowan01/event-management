@@ -74,10 +74,13 @@
     <div id="all" class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <!-- Event Card -->
         {% for event in events %}
-            <div class="bg-white shadow-md rounded-lg p-4 hover:shadow-lg">
-                <h2 class="text-lg font-semibold"> {{event.name}} </h2>
-                <p class="text-gray-600"> {{event.date}} | {{event.category}} </p> <a href="#event{{event.id}}" class="text-blue-600 underline">View
-                    Details</a>
+            <div class="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-200">
+                <img src="{{event.image.url}}" alt="Event Image" class="mb-4 rounded-lg shadow-md transition-transform duration-200 transform hover:scale-105 h-60 w-full">
+                <h2 class="text-2xl font-bold text-gray-800 hover:text-blue-600 transition-colors duration-200"> {{event.name}} </h2>
+                <p class="text-gray-500 text-md"> {{event.date}} | <span class="font-semibold text-blue-500">{{event.category}}</span> </p>
+                <a href="#event{{event.id}}" class="block text-center mt-4 py-2 px-4 text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-colors duration-200">
+                    View Details
+                </a>
             </div>
         {% endfor %}
     </div> 
@@ -85,7 +88,7 @@
     {% for event in events %}
         <div id="event{{event.id}}" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
             <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
-                <img src="{{event.image.url}}" alt="Event Image">
+                <img src="{{event.image.url}}" alt="Event Image" class="mb-5 rounded-lg shadow-md">
                 <h3 class="font-semibold text-gray-800"> {{event.name}} </h3>
                 <p class="text-sm text-gray-500"> {{event.description}} </p>
                 <p class="text-sm text-gray-500"> {{event.date}} • {{event.time}} </p>

@@ -55,7 +55,7 @@
             <!-- Example Event Cards -->
             {% for event in events %}
                 <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition relative group">
-                    <img src="{{event.image.url}}" alt="Event Image">
+                    <img src="{{event.image.url}}" alt="Event Image" class="mb-5 rounded-lg shadow-md">
                     <h3 class="font-semibold text-gray-800"> {{event.name}} </h3>
                     <p class="text-sm text-gray-500"> {{event.date}} • {{event.time}} </p>
                     <div class="grid grid-cols-4 text-center gap-4 my-3">

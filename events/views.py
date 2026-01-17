@@ -276,6 +276,17 @@ def participantRoleEdit(request):
         user.groups.clear()
         user.groups.add(group)
 
+        # send mail
+        subject = "Role chnaged"
+        message = f"Hi {user.username},\n\nYour role has been changed to {group.name}.\n\nBest Regards,\nThe Event.io Team"
+        from_email = settings.EMAIL_HOST_USER
+        recipient_list = [user.email]
+
+        try:
+            send_mail(subject, message, from_email, recipient_list) 
+        except:
+            messages.warning(request, "Email sending failed")
+
     return redirect("participant-list")
 
 @login_required
