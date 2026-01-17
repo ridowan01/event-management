@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.utils import timezone
 from django.db.models import Count, Q
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -9,12 +9,19 @@ from django.conf import settings
 from .models import Event, Category
 from .forms import CategoryMForm, EventMForm
 
+def is_organizer(user):
+    if user.is_authenticated:
+        return user.groups.filter(name="Organizer").exists()
+    return False
+
+# Create your views here.
+
 def home(request):
     return render(request, "events/home.html")
 
 @login_required
 def index(request):
-    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()
+    if not (request.user.is_superuser or is_organizer(request.user)
     or request.user.groups.filter(name="Participant").exists()):
         messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
@@ -68,6 +75,11 @@ def index(request):
 
 @login_required
 def partipateEvent(request, id):
+    if not (request.user.is_superuser or is_organizer(request.user)
+    or request.user.groups.filter(name="Participant").exists()):
+        messages.error(request, "You do not have permission to access this page, Login first")
+        return redirect("login")
+    
     event = get_object_or_404(Event, id=id)
     if request.method == "POST":
         if request.user in event.participants.all():
@@ -94,7 +106,13 @@ def partipateEvent(request, id):
 
     return redirect("index")
 
+@login_required
 def cancelPartipateEvent(request, id):
+    if not (request.user.is_superuser or is_organizer(request.user)
+    or request.user.groups.filter(name="Participant").exists()):
+        messages.error(request, "You do not have permission to access this page, Login first")
+        return redirect("login")
+    
     event = get_object_or_404(Event, id=id)
     if request.method == "POST":
         if request.user in event.participants.all():
@@ -119,7 +137,7 @@ def cancelPartipateEvent(request, id):
 
 @login_required
 def eventCreate(request):
-    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+    if not (request.user.is_superuser or is_organizer(request.user)):
         messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
@@ -143,7 +161,7 @@ def eventCreate(request):
 
 @login_required
 def eventEdit(request, id):
-    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+    if not (request.user.is_superuser or is_organizer(request.user)):
         messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
@@ -159,7 +177,7 @@ def eventEdit(request, id):
 
 @login_required
 def eventDelete(request, id):
-    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+    if not (request.user.is_superuser or is_organizer(request.user)):
         messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
@@ -172,7 +190,7 @@ def eventDelete(request, id):
 
 @login_required
 def categoryCreate(request):
-    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+    if not (request.user.is_superuser or is_organizer(request.user)):
         messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
@@ -194,7 +212,7 @@ def categoryCreate(request):
 
 @login_required
 def categoryEdit(request, id):
-    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+    if not (request.user.is_superuser or is_organizer(request.user)):
         messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
 
@@ -210,7 +228,7 @@ def categoryEdit(request, id):
 
 @login_required
 def categoryDelete(request, id):
-    if not (request.user.is_superuser or request.user.groups.filter(name="Organizer").exists()):
+    if not (request.user.is_superuser or is_organizer(request.user)):
         messages.error(request, "You do not have permission to access this page, Login first")
         return redirect("login")
         
@@ -220,3 +238,56 @@ def categoryDelete(request, id):
         category.delete()
     
     return redirect("category-create")
+
+@login_required
+def participantList(request):
+    if not request.user.is_superuser:
+        return HttpResponse("You do not have permission to access this page")
+    
+    users = User.objects.all()
+    groups = Group.objects.all()
+
+    users_with_groups = []
+    for user in users:
+        user.current_group = user.groups.first()
+        users_with_groups.append(user)
+
+    context = {
+        "users": users_with_groups,
+        "active_tab": "participant",
+        "groups": groups,
+    }
+
+    return render(request, "events/participant.html", context)
+
+
+@login_required
+def participantRoleEdit(request):
+    if not request.user.is_superuser:
+        return HttpResponse("You do not have permission to access this page")
+    
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        group_id = request.POST.get("role")
+
+        user = User.objects.get(id=user_id)
+        group = Group.objects.get(id=group_id)
+
+        user.groups.clear()
+        user.groups.add(group)
+
+    return redirect("participant-list")
+
+@login_required
+def participantDelete(request, id):
+    if not request.user.is_superuser:
+        return HttpResponse("You do not have permission to access this page")
+    
+    if request.method == "POST":
+        if request.user.id == id:
+            messages.warning(request, "You cannot delete yourself")
+        else:
+            user = User.objects.get(id=id)
+            user.delete()
+
+    return redirect("participant-list")

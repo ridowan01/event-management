@@ -14,7 +14,7 @@
 
     <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
         <div class="text-xl font-bold text-blue-600">Event.io</div>
-        {% if request.user.is_superuser %}
+        {% if request.user.is_superuser or is_organizer %}
             <!-- show buttons -->
             <div class="flex space-x-6">
                 <!-- Event -->
@@ -32,6 +32,16 @@
                         Category
                     </button>
                 </a>
+
+                {% if request.user.is_superuser %}
+                    <!-- User -->
+                    <a href="{% url 'participant-list' %}">
+                        <button id="btn-category"
+                            class="tab-btn text-gray-600 hover:text-blue-600 font-medium {% if active_tab == 'participant' %}border-b-2 border-blue-600{% endif %}">
+                            Participant
+                        </button>
+                    </a>
+                {% endif %}
             </div>
         {% else %}
             {% for g in request.user.groups.all %}
