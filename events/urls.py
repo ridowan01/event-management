@@ -19,4 +19,10 @@ urlpatterns = [
     path("category/create/", views.categoryCreate, name="category-create"),
     path("category/edit/<int:id>/", views.categoryEdit, name="category-edit"),
     path("category/delete/<int:id>/", views.categoryDelete, name="category-delete"),
+
+    # admin section
+    # participant section
+    path("participant/list/", views.participantList, name="participant-list"),
+    path("participant/role/edit/", views.participantRoleEdit, name="participant-role-edit"),
+    path("participant/delete/<int:id>/", views.participantDelete, name="participant-delete"),
 ]

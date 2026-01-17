@@ -1,0 +1,55 @@
+{% extends 'events/base.html' %}
+
+{% block title %} User Management {% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen flex items-center justify-center py-5">
+    <!-- Content -->
+    <div class="w-full max-w-3xl bg-white shadow-lg rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">User List</h1>
+        
+        <!-- Example User Row -->
+        <div class="space-y-4">
+        
+        <!-- User List -->
+        {% for user in users %}
+            <div class="flex items-center justify-between border-b pb-4">
+                <div>
+                <p class="text-lg font-semibold text-gray-700">{{ user.username }}</p>
+                <p class="text-sm text-gray-500">Role: {{ user.current_group.name|default:'No Role' }}</p>
+                </div>
+                
+                <div class="flex space-x-2">
+                <!-- Edit Role Form -->
+                <form method="POST" action="{% url 'participant-role-edit' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <select name="role" class="border rounded px-2 py-1 text-sm focus:ring focus:ring-blue-300">
+                        {% for group in groups %}
+                            <option value="{{group.id}} 
+                                {% if user.current_group.id == group.id %}selected{% endif %}">{{group.name}}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="ml-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                    Save
+                    </button>
+                </form>
+                
+                <!-- Delete User Form -->
+                <form method="POST" action="{% url 'participant-delete' user.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                    Delete
+                    </button>
+                </form>
+                </div>
+            </div>
+        {% endfor %}
+
+        </div>
+    </div>
+</div>
+{% endblock content %}
