@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Event, Category
 from .forms import CategoryMForm, EventMForm
 
@@ -19,59 +21,61 @@ def is_organizer(user):
 def home(request):
     return render(request, "events/home.html")
 
-@login_required
-def index(request):
-    if not (request.user.is_superuser or is_organizer(request.user)
-    or request.user.groups.filter(name="Participant").exists()):
-        messages.error(request, "You do not have permission to access this page, Login first")
-        return redirect("login")
+class EventIndexView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        if not (request.user.is_superuser or is_organizer(request.user)
+        or request.user.groups.filter(name="Participant").exists()):
+            messages.error(request, "You do not have permission to access this page, Login first")
+            return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
     
-    curr_date = timezone.now().date()
-    
-    counts = Event.objects.aggregate(
-        total=Count('id'),
-        upcoming=Count('id', filter=Q(date__gte=curr_date)),
-        past=Count('id', filter=Q(date__lt=curr_date))
-    )
+    def get(self, request, *args, **kwargs):
+        curr_date = timezone.now().date()
 
-    events = Event.objects.select_related("category").prefetch_related("participants")
+        counts = Event.objects.aggregate(
+            total=Count('id'),
+            upcoming=Count('id', filter=Q(date__gte=curr_date)),
+            past=Count('id', filter=Q(date__lt=curr_date))
+        )
 
-    query = request.GET.get("q")
-    search_by = request.GET.get("by")
-    
-    if query:
-        if search_by == "category":
-            events = events.filter(category__name__icontains=query)
-        elif search_by == "location":
-            events = events.filter(location__icontains=query)
-        else:
-            events = events.filter(name__icontains=query)
+        events = Event.objects.select_related("category").prefetch_related("participants")
 
-    category_type = request.GET.get("category")
-    filter_type = request.GET.get("type") 
-
-    if category_type and category_type != "all":
-        events = events.filter(category__name=category_type)
+        query = request.GET.get("q")
+        search_by = request.GET.get("by")
         
-    if filter_type == "upcoming":
-        events = events.filter(date__gte=curr_date)
-    elif filter_type == "past":
-        events = events.filter(date__lt=curr_date)
-    elif filter_type == "participated":
-        events = events.filter(participants=request.user)
-    elif not filter_type and not query:
-        events = events.filter(date=curr_date)
+        if query:
+            if search_by == "category":
+                events = events.filter(category__name__icontains=query)
+            elif search_by == "location":
+                events = events.filter(location__icontains=query)
+            else:
+                events = events.filter(name__icontains=query)
 
-    context = {
-        "events": events,
-        "categorys": Category.objects.all(),
-        "total_count": counts['total'],
-        "upcoming_count": counts['upcoming'],
-        "past_count": counts['past'],
-        "query": query,
-        "search_by": search_by,
-    }
-    return render(request, "events/index.html", context)
+        category_type = request.GET.get("category")
+        filter_type = request.GET.get("type") 
+
+        if category_type and category_type != "all":
+            events = events.filter(category__name=category_type)
+            
+        if filter_type == "upcoming":
+            events = events.filter(date__gte=curr_date)
+        elif filter_type == "past":
+            events = events.filter(date__lt=curr_date)
+        elif filter_type == "participated":
+            events = events.filter(participants=request.user)
+        elif not filter_type and not query:
+            events = events.filter(date=curr_date)
+
+        context = {
+            "events": events,
+            "categorys": Category.objects.all(),
+            "total_count": counts['total'],
+            "upcoming_count": counts['upcoming'],
+            "past_count": counts['past'],
+            "query": query,
+            "search_by": search_by,
+        }
+        return render(request, "events/index.html", context)
 
 @login_required
 def partipateEvent(request, id):

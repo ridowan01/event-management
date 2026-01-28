@@ -5,7 +5,7 @@ urlpatterns = [
     path("", views.home, name="home"),
 
     # user section
-    path("index/", views.index, name="index"),
+    path("index/", views.EventIndexView.as_view(), name="index"),
     path("participate/<int:id>/", views.partipateEvent, name="participate-event"),
     path("participate/cancel/<int:id>/", views.cancelPartipateEvent, name="cancel-participate-event"),
 
