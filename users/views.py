@@ -4,12 +4,16 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
+from django.views import View
 from .forms import RegisterForm, LoginForm
 
 # Create your views here.
-def logup(request):
-    form = RegisterForm()
-    if request.method == "POST":
+class LogupView(View):
+    def get(self, request):
+        form = RegisterForm()
+        return render(request, "users/logup.html", {"form": form})
+    
+    def post(self, request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             # weather email already exits or not
@@ -37,12 +41,14 @@ def logup(request):
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
+        return render(request, "users/logup.html", {"form": form})
 
-    return render(request, "users/logup.html", {"form": form})
-
-def login(request):
-    form = AuthenticationForm()
-    if request.method == "POST":
+class LoginView(View):
+    def get(self, request):
+        form = AuthenticationForm()
+        return render(request, "users/login.html", {"form": form})
+    
+    def post(self, request):
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             username = form.cleaned_data["username"]
@@ -58,8 +64,7 @@ def login(request):
                 messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Invalid username or password.")
-
-    return render(request, "users/login.html", {"form": form})
+        return render(request, "users/login.html", {"form": form})
 
 def logout(request):
     auth_logout(request)
