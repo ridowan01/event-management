@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect, HttpResponse
-from django.contrib.auth.models import User, Group
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import PasswordChangeView, PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from django.contrib.auth.tokens import default_token_generator
 from django.views import View
-from .forms import RegisterForm, LoginForm
+from django.views.generic import TemplateView
+from django.urls import reverse_lazy
+from .forms import RegisterForm
 
 # Create your views here.
 class LogupView(View):
@@ -45,26 +48,24 @@ class LogupView(View):
 
 class LoginView(View):
     def get(self, request):
-        form = AuthenticationForm()
-        return render(request, "users/login.html", {"form": form})
+        return render(request, "users/login.html")
     
     def post(self, request):
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                auth_login(request, user)
-                if user.is_superuser or user.groups.filter(name="Organizer").exists():
-                    return redirect("event-create")
-                elif user.groups.filter(name="Participant").exists():
-                    return redirect("index")
-            else:
-                messages.error(request, "Invalid username or password.")
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            auth_login(request, user)
+            if user.is_superuser or user.groups.filter(name="Organizer").exists():
+                return redirect("event-create")
+            elif user.groups.filter(name="Participant").exists():
+                return redirect("index")
         else:
             messages.error(request, "Invalid username or password.")
-        return render(request, "users/login.html", {"form": form})
+        
+        return render(request, "users/login.html")
+
 
 def logout(request):
     auth_logout(request)
@@ -82,3 +83,38 @@ def activate_user(request, user_id, token):
             return HttpResponse("Invalid activation link.")
     except User.DoesNotExist:
         return HttpResponse("User not found.")
+
+class ProfileView(TemplateView):
+    template_name = "users/profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+        context["email"] = user.email
+        context["name"] = user.get_full_name()
+        return context
+
+class ChangePasswordView(PasswordChangeView):
+    template_name = "users/changepassword.html"
+
+    def get_success_url(self):
+        messages.success(self.request, "Password changed successfully!")
+        return reverse_lazy("profile")
+
+class ResetPasswordEmailView(PasswordResetView):
+    template_name = "users/password_reset_email.html"
+    email_template_name = "users/password_reset_email_message.html"
+
+    def get_success_url(self):
+        messages.success(self.request, 'Password reset email sent successfully! Check your inbox')
+        return reverse_lazy("login")
+
+class ResetPasswordView(PasswordResetConfirmView):
+    template_name = "users/password_reset.html"
+    success_url = reverse_lazy("login")
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, "Password reset successfully!")
+        return super().form_valid(form)
