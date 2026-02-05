@@ -4,6 +4,9 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django.core.mail import send_mail
+from .models import UserProfile
+
+# Create your models here.
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -21,3 +24,8 @@ def create_user_profile(sender, instance, created, **kwargs):
             send_mail(subject, message, from_email, recipient_list)
         except Exception as e:
             print(f"Error sending activation email to {instance.email}: {str(e)}")
+
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
