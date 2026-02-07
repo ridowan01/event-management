@@ -1,20 +1,14 @@
 from django import forms
-from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import CustomUser
 
 class RegisterForm(forms.ModelForm):
     confirm_password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ["username", "first_name", "last_name", "email", "password", "confirm_password"]
 
 class UserForm(forms.ModelForm):
     class Meta:
-        model = User
-        fields = ["first_name", "last_name", "email"]
-
-class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ["profile_image", "bio"]
+        model = CustomUser
+        fields = ["first_name", "last_name", "email", "profile_image", "bio"]

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django.core.mail import send_mail
-from .models import UserProfile
+from .models import CustomUser
 
 # Create your models here.
 
@@ -28,4 +28,4 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
-        UserProfile.objects.create(user=instance)
+        CustomUser.objects.create(user=instance)

@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.utils import timezone
 from django.db.models import Count, Q
-from django.contrib.auth.models import User, Group
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -10,6 +11,8 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Event, Category
 from .forms import CategoryMForm, EventMForm
+
+User = get_user_model()
 
 def is_organizer(user):
     if user.is_authenticated:

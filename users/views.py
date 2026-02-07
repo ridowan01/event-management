@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
-from django.contrib.auth.models import User, Group
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from django.contrib.auth.tokens import default_token_generator
@@ -9,8 +9,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import TemplateView, FormView
 from django.urls import reverse_lazy
-from .forms import RegisterForm, UserForm, UserProfileForm
-from .models import UserProfile
+from .forms import RegisterForm, UserForm
+
+User = get_user_model()
 
 # Create your views here.
 class LogupView(View):
@@ -95,10 +96,8 @@ class ProfileView(TemplateView):
         user = self.request.user
         context["email"] = user.email
         context["name"] = user.get_full_name() if user.get_full_name() else user.username
-
-        profile, created = UserProfile.objects.get_or_create(user=user)
-        context["bio"] = profile.bio
-        context["profile_image"] = profile.profile_image.url if profile.profile_image else "/static/users/images/profile.jpg"
+        context["bio"] = user.bio
+        context["profile_image"] = user.profile_image.url if user.profile_image else "/static/users/images/profile.jpg"
         return context
 
 class EditProfileView(LoginRequiredMixin, FormView):
@@ -106,33 +105,24 @@ class EditProfileView(LoginRequiredMixin, FormView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        profile, created = UserProfile.objects.get_or_create(user=user)
-        
         user_form = UserForm(instance=user)
-        profile_form = UserProfileForm(instance=profile)
         
         return render(request, self.template_name, {
             'user_form': user_form,
-            'profile_form': profile_form,
         })
     
     def post(self, request, *args, **kwargs):
         user = request.user
-        profile, created = UserProfile.objects.get_or_create(user=user)
+        user_form = UserForm(request.POST, request.FILES, instance=user)
         
-        user_form = UserForm(request.POST, instance=user)
-        profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
-        
-        if user_form.is_valid() and profile_form.is_valid():
+        if user_form.is_valid():
             user_form.save()
-            profile_form.save()
             messages.success(request, "Profile updated successfully!")
             return redirect("profile")
         else:
             messages.error(request, "Please correct the errors below.")
             return render(request, self.template_name, {
                 'user_form': user_form,
-                'profile_form': profile_form,
             })
     
 
