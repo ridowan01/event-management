@@ -54,15 +54,15 @@ class LoginView(View):
         return render(request, "users/login.html")
     
     def post(self, request):
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             auth_login(request, user)
+            messages.success(request, "Logged in successfully!")
+
             if user.is_superuser or user.groups.filter(name="Organizer").exists():
                 return redirect("event-create")
-            elif user.groups.filter(name="Participant").exists():
+            else:
                 return redirect("index")
         else:
             messages.error(request, "Invalid username or password.")
@@ -96,12 +96,25 @@ class ProfileView(TemplateView):
         user = self.request.user
         context["email"] = user.email
         context["name"] = user.get_full_name() if user.get_full_name() else user.username
+        context["username"] = user.username
         context["bio"] = user.bio
+        context["role"] = user.groups.all()[0]
         context["profile_image"] = user.profile_image.url if user.profile_image else "/static/users/images/profile.jpg"
         return context
 
 class EditProfileView(LoginRequiredMixin, FormView):
     template_name = "users/edit_profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+        context["email"] = user.email
+        context["name"] = user.get_full_name() if user.get_full_name() else user.username
+        context["username"] = user.username
+        context["bio"] = user.bio
+        context["role"] = user.groups.all()[0]
+        return context
 
     def get(self, request, *args, **kwargs):
         user = request.user

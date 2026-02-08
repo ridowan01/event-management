@@ -14,6 +14,11 @@ from .forms import CategoryMForm, EventMForm
 
 User = get_user_model()
 
+def is_admin(user):
+    if user.is_authenticated:
+        return user.is_superuser or user.groups.filter(name="Admin").exists()
+    return False
+
 def is_organizer(user):
     if user.is_authenticated:
         return user.groups.filter(name="Organizer").exists()
@@ -34,7 +39,7 @@ class EventIndexView(LoginRequiredMixin, View):
     categories = Category.objects.all()
 
     def _has_permission(self, user):
-        return user.is_superuser or is_organizer(user) or is_participant(user)
+        return is_admin(user) or is_organizer(user) or is_participant(user)
 
     def dispatch(self, request, *args, **kwargs):
         if not self._has_permission(request.user):
@@ -91,7 +96,7 @@ class EventIndexView(LoginRequiredMixin, View):
 
 class ParticipateEventView(LoginRequiredMixin, View):
     def _has_permission(self, user):
-        return user.is_superuser or is_organizer(user) or is_participant(user)
+        return is_admin(user) or is_organizer(user) or is_participant(user)
 
     def dispatch(self, request, *args, **kwargs):
         if not self._has_permission(request.user):
@@ -126,7 +131,7 @@ class ParticipateEventView(LoginRequiredMixin, View):
 
 class CancelEventParticipateView(LoginRequiredMixin, View):
     def _has_permission(self, user):
-        return user.is_superuser or is_organizer(user) or is_participant(user)
+        return is_admin(user) or is_organizer(user) or is_participant(user)
 
     def dispatch(self, request, *args, **kwargs):
         if not self._has_permission(request.user):
@@ -169,7 +174,7 @@ class CreateEventView(LoginRequiredMixin, View):
     }
 
     def _has_permission(self, user):
-        return user.is_superuser or is_organizer(user)
+        return is_admin(user) or is_organizer(user)
     
     def dispatch(self, request, *args, **kwargs):
         if not self._has_permission(request.user):
@@ -191,7 +196,7 @@ class CreateEventView(LoginRequiredMixin, View):
 
 class EditEventView(LoginRequiredMixin, View):
     def _has_permission(self, user):
-        return user.is_superuser or is_organizer(user)
+        return is_admin(user) or is_organizer(user)
     
     def dispatch(self, request, *args, **kwargs):
         if not self._has_permission(request.user):
@@ -209,7 +214,7 @@ class EditEventView(LoginRequiredMixin, View):
 
 class DeleteEventView(LoginRequiredMixin, View):
     def _has_permission(self, user):
-        return user.is_superuser or is_organizer(user)
+        return is_admin(user) or is_organizer(user)
     
     def dispatch(self, request, *args, **kwargs):
         if not self._has_permission(request.user):
@@ -223,16 +228,8 @@ class DeleteEventView(LoginRequiredMixin, View):
         return redirect("event-create")
 
 class CreateCategoryView(LoginRequiredMixin, View):
-    categorys = Category.objects.all()
-    form = CategoryMForm()
-    context = {
-        "categorys": categorys,
-        "active_tab": "category",
-        "form": form,
-    }
-
     def _has_permission(self, user):
-        return user.is_superuser or is_organizer(user)
+        return is_admin(user) or is_organizer(user)
     
     def dispatch(self, request, *args, **kwargs):
         if not self._has_permission(request.user):
@@ -241,7 +238,14 @@ class CreateCategoryView(LoginRequiredMixin, View):
         return super().dispatch(request, *args, **kwargs)
     
     def get(self, request):
-        return render(request, "events/category.html", self.context)
+        categorys = Category.objects.all()
+        form = CategoryMForm()
+        context = {
+            "categorys": categorys,
+            "active_tab": "category",
+            "form": form,
+        }
+        return render(request, "events/category.html", context)
     
     def post(self, request):
         self.form = CategoryMForm(request.POST)
@@ -254,7 +258,7 @@ class CreateCategoryView(LoginRequiredMixin, View):
 
 class EditCategoryView(LoginRequiredMixin, View):
     def _has_permission(self, user):
-        return user.is_superuser or is_organizer(user)
+        return is_admin(user) or is_organizer(user)
     
     def dispatch(self, request, *args, **kwargs):
         if not self._has_permission(request.user):
@@ -272,7 +276,7 @@ class EditCategoryView(LoginRequiredMixin, View):
 
 class DeleteCategoryView(LoginRequiredMixin, View):
     def _has_permission(self, user):
-        return user.is_superuser or is_organizer(user)
+        return is_admin(user) or is_organizer(user)
     
     def dispatch(self, request, *args, **kwargs):
         if not self._has_permission(request.user):
@@ -286,31 +290,30 @@ class DeleteCategoryView(LoginRequiredMixin, View):
         return redirect("category-create")
 
 class ParticipantListView(LoginRequiredMixin, View):
-    users = User.objects.all()
-    groups = Group.objects.all()
-
-    users_with_groups = []
-    for user in users:
-        user.current_group = user.groups.first()
-        users_with_groups.append(user)
-
-    context = {
-        "users": users_with_groups,
-        "active_tab": "participant",
-        "groups": groups,
-    }
-
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        if not is_admin(request.user):
             return HttpResponse("You do not have permission to access this page")
         return super().dispatch(request, *args, **kwargs)
     
     def get(self, request):
-        return render(request, "events/participant.html", self.context)
+        users = User.objects.all()
+        groups = Group.objects.all()
+
+        users_with_groups = []
+        for user in users:
+            user.current_group = user.groups.first()
+            users_with_groups.append(user)
+
+        context = {
+            "users": users_with_groups,
+            "active_tab": "participant",
+            "groups": groups,
+        }
+        return render(request, "events/participant.html", context)
 
 class EditParticipantRoleView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        if not is_admin(request.user):
             return HttpResponse("You do not have permission to access this page")
         return super().dispatch(request, *args, **kwargs)
     
@@ -340,7 +343,7 @@ class EditParticipantRoleView(LoginRequiredMixin, View):
 
 class DeleteParticipantView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        if not is_admin(request.user):
             return HttpResponse("You do not have permission to access this page")
         return super().dispatch(request, *args, **kwargs)
     
