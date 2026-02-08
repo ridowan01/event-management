@@ -1,9 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Event.io</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <title>Event.io</title>
+    <link rel="stylesheet" href="{% static '/events/css/output.css' %}">
+    <link href="{% static '/events/css/all.min.css' %}" rel="stylesheet">
 </head>
 <body class="flex flex-col min-h-screen bg-gray-50">
 
